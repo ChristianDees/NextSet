@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "NextSetIcon 1.png",
+      "filename" : "NextSetIconLight.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "NextStepDark.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
