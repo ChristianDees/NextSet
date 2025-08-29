@@ -1,0 +1,15 @@
+//
+//  Seti+CoreDataClass.swift
+//  NextStep
+//
+//  Created by Christian Dees on 8/28/25.
+//
+//
+
+import Foundation
+import CoreData
+
+
+public class Seti: NSManagedObject {
+
+}
