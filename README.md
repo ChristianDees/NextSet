@@ -1,6 +1,6 @@
 # NextSet
 
-<img src="./NextSet/Assets.xcassets/AppIcon.appiconset/NextSetIcon.png" alt="NextSet App Icon" width="150" />
+<img src="./NextSet/Assets.xcassets/AppIcon.appiconset/NextSetIconLight.png" alt="NextSet App Icon" width="150" />
 
 ---
 
@@ -48,11 +48,15 @@ By focusing on **progressive overload**, NextSet empowers you to beat your previ
   <img src="./SSExamples/CreateWorkoutExampleLight.png" alt="Create Workout Light" width="200" />
   <img src="./SSExamples/HomePageExampleLight.png" alt="Home Page Light" width="200" />
   <img src="./SSExamples/ExerciseDetailsExampleLight.png" alt="Exercise Details Light" width="200" />
+  <img src="./NextSet/Assets.xcassets/AppIcon.appiconset/NextSetIconLight.png" alt="NextSet App Icon" width="150" />
+
 </p>
 <p style="display: flex; justify-content: center; gap: 30px;">
   <img src="./SSExamples/CreateWorkoutExampleDark.png" alt="Create Workout Dark" width="200" />
   <img src="./SSExamples/HomePageExampleDark.png" alt="Home Page Dark" width="200" />
   <img src="./SSExamples/ExerciseDetailsExampleDark.png" alt="Exercise Details Dark" width="200" />
+  <img src="./NextSet/Assets.xcassets/AppIcon.appiconset/NextSetIconDark.png" alt="NextSet App Icon" width="150" />
+
 </p>
 
 ---
