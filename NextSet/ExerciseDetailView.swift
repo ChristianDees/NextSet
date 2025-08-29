@@ -47,6 +47,14 @@ struct ExerciseDetailView: View {
             return Color(UIColor.white)
         }
     }
+    // Background color based on appearance
+    var fontColor: Color {
+        if colorScheme == .dark {
+            return Color(UIColor.white)
+        } else {
+            return Color(UIColor.black)
+        }
+    }
 
     var body: some View {
         VStack {
@@ -108,12 +116,12 @@ struct ExerciseDetailView: View {
                             HStack {
                                 Text("Weight")
                                     .font(.headline)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(Color(fontColor))
                                     .frame(maxWidth: .infinity, alignment: .leading)
 
                                 Text("Reps")
                                     .font(.headline)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(Color(fontColor))
                                     .frame(maxWidth: .infinity, alignment: .leading)
 
                                 Spacer(minLength: 44)
