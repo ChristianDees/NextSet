@@ -13,6 +13,7 @@ struct HomeView: View {
     
     @Environment(\.colorScheme) private var colorScheme             // Accesses the current color mode (dark/light)
     @Environment(\.managedObjectContext) private var viewContext    // Accesses the Core Data managed object context
+    @Environment(\.sizeCategory) private var sizeCategory
     
     @Binding var selectedDate: Date // Date for today (or can be selected)
 
@@ -54,7 +55,7 @@ struct HomeView: View {
                             // Previous day button
                             Button { changeDate(by: -1) } label: {
                                 Image(systemName: "chevron.left")
-                                    .font(.title2)
+                                    .font(.title)
                                     .foregroundStyle(Color(.blue))
                             }
                             .buttonStyle(.plain)
@@ -68,7 +69,7 @@ struct HomeView: View {
                                 }
                             } label: {
                                 Text(formattedDate(selectedDate))
-                                    .font(.system(size: 30, weight: .bold))
+                                    .font(.title2.weight(.bold))
                                     .foregroundColor(.primary)
                                     .padding(.horizontal, 30)
                                     .padding(.vertical, 15)
@@ -76,17 +77,18 @@ struct HomeView: View {
                                     .clipShape(Capsule())
                                     .shadow(color: Color.primary.opacity(0.1), radius: 3)
                                     .lineLimit(1)
-                                    .minimumScaleFactor(0.5)
+                                    .minimumScaleFactor(0.5) // Optional: allows the text to shrink if needed
                             }
                             .frame(maxWidth: .infinity)
                             .buttonStyle(.plain)
+
 
                             Spacer()
                             
                             // Next day button
                             Button { changeDate(by: 1) } label: {
                                 Image(systemName: "chevron.right")
-                                    .font(.title2)
+                                    .font(.title)
                                     .foregroundStyle(Color(.blue))
                             }
                             .buttonStyle(.plain)
@@ -244,10 +246,17 @@ struct HomeView: View {
 
     // Formats date into short format
     func formattedDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter.string(from: date)
-    }
+            let formatter = DateFormatter()
+            
+            // Check if the text size category is large (zoomed-in)
+            if sizeCategory > .extraExtraLarge {
+                formatter.dateStyle = .medium // Use medium format if zoomed-in
+            } else {
+                formatter.dateStyle = .long // Use long format by default
+            }
+            
+            return formatter.string(from: date)
+        }
 
     // Change date by a day
     func changeDate(by days: Int) {
