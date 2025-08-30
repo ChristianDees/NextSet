@@ -13,7 +13,7 @@ struct HomeView: View {
     
     @Environment(\.colorScheme) private var colorScheme             // Accesses the current color mode (dark/light)
     @Environment(\.managedObjectContext) private var viewContext    // Accesses the Core Data managed object context
-    @Environment(\.sizeCategory) private var sizeCategory
+    @Environment(\.sizeCategory) private var sizeCategory           // Access size of font
     
     @Binding var selectedDate: Date // Date for today (or can be selected)
 
@@ -77,7 +77,7 @@ struct HomeView: View {
                                     .clipShape(Capsule())
                                     .shadow(color: Color.primary.opacity(0.1), radius: 3)
                                     .lineLimit(1)
-                                    .minimumScaleFactor(0.5) // Optional: allows the text to shrink if needed
+                                    .minimumScaleFactor(0.5)
                             }
                             .frame(maxWidth: .infinity)
                             .buttonStyle(.plain)
@@ -246,17 +246,13 @@ struct HomeView: View {
 
     // Formats date into short format
     func formattedDate(_ date: Date) -> String {
-            let formatter = DateFormatter()
-            
-            // Check if the text size category is large (zoomed-in)
-            if sizeCategory > .extraExtraLarge {
-                formatter.dateStyle = .medium // Use medium format if zoomed-in
-            } else {
-                formatter.dateStyle = .long // Use long format by default
-            }
-            
-            return formatter.string(from: date)
-        }
+        let formatter = DateFormatter()
+        
+        // Use medium format if zoomed-in, long by default
+        if sizeCategory > .extraExtraLarge {formatter.dateStyle = .medium} else {formatter.dateStyle = .long}
+        
+        return formatter.string(from: date)
+    }
 
     // Change date by a day
     func changeDate(by days: Int) {
