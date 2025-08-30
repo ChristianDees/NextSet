@@ -35,9 +35,14 @@ struct ExerciseDetailView: View {
     @ObservedObject var exercise: Exercise
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) var dismiss
+    @State private var isDeleting = false
 
     @State private var weight = ""
     @State private var reps = ""
+
+    // Focus state for text fields
+    @FocusState private var isWeightFieldFocused: Bool
+    @FocusState private var isRepsFieldFocused: Bool
 
     // Background color based on appearance
     var backgroundColor: Color {
@@ -47,7 +52,8 @@ struct ExerciseDetailView: View {
             return Color(UIColor.white)
         }
     }
-    // Background color based on appearance
+    
+    // Font color based on appearance
     var fontColor: Color {
         if colorScheme == .dark {
             return Color(UIColor.white)
@@ -60,30 +66,46 @@ struct ExerciseDetailView: View {
         VStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    // Exercise title
-                    Text(exercise.name ?? "Exercise")
-                        .font(.title.bold())
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top)
+                    // Exercise title with trash can on the left
+                    HStack {
+                        VStack(spacing: 0) {
+                            
+                            Button(role: .destructive) {
+                                deleteExerciseImmediately()
+                            } label: {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                                    .frame(width: 12, height: 12)
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.top)
+                        }
+
+                        Spacer()
+
+                        Text(exercise.name ?? "Exercise")
+                            .font(.title.bold())
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top)
+                    }
+                    .padding(.horizontal)
 
                     // Add sets
                     VStack(spacing: 12) {
-                        Text("Add Set")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
                         HStack(spacing: 12) {
                             TextField("Weight (lbs)", text: $weight)
                                 .keyboardType(.decimalPad)
                                 .padding()
                                 .background(Color(.systemGray6))
                                 .cornerRadius(10)
+                                .focused($isWeightFieldFocused)  // Bind the focus state
 
                             TextField("Reps", text: $reps)
                                 .keyboardType(.numberPad)
                                 .padding()
                                 .background(Color(.systemGray6))
                                 .cornerRadius(10)
+                                .focused($isRepsFieldFocused)  // Bind the focus state
                         }
 
                         Button {
@@ -98,6 +120,7 @@ struct ExerciseDetailView: View {
                                 .cornerRadius(10)
                         }
                         .disabled(!canAddSet)
+                        .buttonStyle(.plain)
                     }
                     .padding()
                     .background(Color(backgroundColor))
@@ -112,7 +135,7 @@ struct ExerciseDetailView: View {
                             .padding(.vertical, 20)
                     } else {
                         VStack(spacing: 12) {
-                            // Header row
+                            // Header row for sets
                             HStack {
                                 Text("Weight")
                                     .font(.headline)
@@ -135,25 +158,35 @@ struct ExerciseDetailView: View {
                             // List of sets
                             ForEach(exercise.setsArray, id: \.self) { set in
                                 HStack(spacing: 16) {
-                                    Text("\(set.weight, specifier: "%.1f") lbs")
+                                    Text("\(set.weight, specifier: "%.1f")")
                                         .font(.body.weight(.medium))
                                         .foregroundColor(.primary)
                                         .frame(maxWidth: .infinity, alignment: .leading)
-
+                                    
                                     Text("\(set.reps)")
                                         .font(.body.weight(.medium))
                                         .foregroundColor(.primary)
                                         .frame(maxWidth: .infinity, alignment: .leading)
-
+                                    
                                     Spacer()
-
+                                    
                                     // Delete Set Button
+                                    
                                     Button(role: .destructive) {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            isDeleting.toggle()
+                                        }
                                         deleteSet(set)
                                     } label: {
-                                        Image(systemName: "trash")
-                                            .foregroundColor(.red)
-                                            .frame(width: 36, height: 36)
+                                        if isDeleting {
+                                            Image(systemName: "minus.circle.fill")
+                                                .foregroundColor(.red)
+                                                .scaleEffect(1.2)
+                                                .opacity(0.5)
+                                        } else {
+                                            Image(systemName: "minus.circle.fill")
+                                                .foregroundColor(.red)
+                                        }
                                     }
                                     .buttonStyle(.plain)
                                 }
@@ -172,21 +205,6 @@ struct ExerciseDetailView: View {
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 20)
-            }
-
-            // Delete exercise button
-            Button(role: .destructive) {
-                deleteExerciseImmediately()
-            } label: {
-                Text("Delete Exercise")
-                    .fontWeight(.bold)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.red.opacity(0.85))
-                    .foregroundColor(.white)
-                    .cornerRadius(16)
-                    .padding(.horizontal)
-                    .padding(.bottom, 20)
             }
         }
         .background(Color(.systemGroupedBackground).ignoresSafeArea())
@@ -214,6 +232,9 @@ struct ExerciseDetailView: View {
             try viewContext.save()
             weight = ""
             reps = ""
+            // Dismiss keyboard after adding a set
+            isWeightFieldFocused = false
+            isRepsFieldFocused = false
         } catch {
             print("Error saving set: \(error.localizedDescription)")
         }
@@ -221,6 +242,7 @@ struct ExerciseDetailView: View {
 
     // Delete an individual set
     private func deleteSet(_ set: Seti) {
+        isDeleting = false
         viewContext.delete(set)
         try? viewContext.save()
     }
@@ -241,6 +263,7 @@ struct ExerciseDetailView: View {
         }
 
         do {
+            
             try viewContext.save()
             dismiss()
         } catch {
@@ -258,4 +281,3 @@ extension Exercise {
         }
     }
 }
-

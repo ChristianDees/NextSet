@@ -8,6 +8,7 @@
 import SwiftUI
 import CoreData
 
+
 struct WorkoutListView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.managedObjectContext) private var viewContext
@@ -28,10 +29,14 @@ struct WorkoutListView: View {
     // Background color for appearance
     var backgroundColor: Color {
         if colorScheme == .dark {
-            return Color(UIColor.white)
+            return Color(UIColor.secondarySystemBackground) // Dark mode background color
         } else {
-            return Color(UIColor.black)
+            return Color(UIColor.white) // Light mode background color
         }
+    }
+    // Color for divider for appearance
+    var dividerColor: Color {
+        colorScheme == .dark ? .white : .black
     }
 
     var body: some View {
@@ -41,7 +46,6 @@ struct WorkoutListView: View {
                 Color(.systemGroupedBackground).ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    
                     VStack(spacing: 10) {
                         Spacer().frame(height: 12)
 
@@ -55,16 +59,16 @@ struct WorkoutListView: View {
                         }
 
                         Divider()
-                            .background(Color(backgroundColor))
+                            .background(Color(dividerColor))
                             .padding(.top, 12)
                     }
                     .padding(.horizontal)
-
+                    Spacer(minLength: 40)
                     // Workout list
                     if workouts.isEmpty {
                         // No workouts message
                         Spacer()
-                        Spacer()
+                        
                         Text("No workouts made yet!\nCreate one below")
                             .foregroundColor(.secondary)
                             .italic()
@@ -72,40 +76,50 @@ struct WorkoutListView: View {
                             .frame(maxWidth: .infinity)
                         Spacer()
                     } else {
-                        // List of workouts
-                        List {
-                            ForEach(workouts) { workout in
-                                Button {
-                                    // Select workout to show details
-                                    selectedWorkout = workout
-                                } label: {
-                                    HStack {
-                                        VStack(alignment: .leading) {
-                                            Text(workout.name ?? "Unnamed Workout")
-                                                .font(.headline)
-                                                .foregroundColor(backgroundColor)
+                        // Use a ScrollView with LazyVStack to match exercise layout
+                        ScrollView {
+                            LazyVStack(spacing: 12) {
+                                ForEach(workouts) { workout in
+                                    Button {
+                                        // Select workout to show details
+                                        selectedWorkout = workout
+                                    } label: {
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text(workout.name ?? "Unnamed Workout")
+                                                    .font(.headline)
+                                                    .foregroundColor(colorScheme == .dark ? .white : .black)
+                                                    .lineLimit(1)
+                                                    .minimumScaleFactor(0.8)
 
-                                            if let date = workout.date {
-                                                Text(formattedDate(date))
-                                                    .font(.caption)
-                                                    .foregroundColor(.gray)
+                                                if let date = workout.date {
+                                                    Text(formattedDate(date))
+                                                        .font(.caption)
+                                                        .foregroundColor(.gray)
+                                                }
                                             }
+
+                                            Spacer()
+
+                                            // Rotate arrow when selected
+                                            Image(systemName: "chevron.down")
+                                                .rotationEffect(.degrees(selectedWorkout?.objectID == workout.objectID ? 180 : 0))
+                                                .animation(.easeInOut, value: selectedWorkout?.objectID == workout.objectID)
+                                                .foregroundColor(.gray.opacity(0.6))
                                         }
-
-                                        Spacer()
-
-                                        // Rotate arrow when selected
-                                        Image(systemName: "chevron.down")
-                                            .rotationEffect(.degrees(selectedWorkout?.objectID == workout.objectID ? 180 : 0))
-                                            .animation(.easeInOut, value: selectedWorkout?.objectID == workout.objectID)
-                                            .foregroundColor(.gray.opacity(0.6))
+                                        .padding()  // Adjust padding for a tighter feel
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(Color(backgroundColor))
+                                        )
+                                        .shadow(color: Color.primary.opacity(0.05), radius: 2, x: 0, y: 1)
+                                        .padding(.horizontal)
                                     }
-                                    .padding(.vertical, 8)
+                                    .buttonStyle(.plain)
                                 }
                             }
-                            .onDelete(perform: deleteWorkout)
+                            .padding(.top, 4)
                         }
-                        .listStyle(InsetGroupedListStyle())
 
                         // If fewer than 3 workouts, show msg
                         if workouts.count < 3 {
@@ -181,4 +195,3 @@ struct WorkoutListView: View {
         return formatter.string(from: date)
     }
 }
-

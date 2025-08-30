@@ -16,7 +16,7 @@ struct AddExerciseView: View {
     // Optional prefilled data
     var selectedDate: Date? = nil
     var preAssignedWorkout: Workout? = nil
-
+    @State private var isDeleting = false
     @State private var name = ""
 
     // Fetch saved exercise templates sorted by name
@@ -33,68 +33,107 @@ struct AddExerciseView: View {
             return Color(UIColor.white)
         }
     }
+    
+    // Dynamic background based on current color scheme
+    var fullBackgroundColor: Color {
+        if colorScheme == .dark {
+            return Color(UIColor.black)
+        } else {
+            return Color(UIColor.secondarySystemBackground)
+        }
+    }
+    
 
     var body: some View {
         NavigationView {
-            VStack(spacing: 24) {
-                // Title
-                Text("Add Exercise")
-                    .font(.largeTitle.bold())
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, 4)
+            ZStack {
+                // Apply the background color to the entire screen
+                Color(fullBackgroundColor).ignoresSafeArea()
 
-                // Manual name input + Save button
-                VStack(spacing: 12) {
-                    TextField("Exercise Name", text: $name)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
+                ScrollView {  // Wrap the entire content inside a ScrollView
+                    VStack(spacing: 24) {
+                        // Manual name input + Save button
+                        VStack(spacing: 12) {
+                            TextField("Exercise Name", text: $name)
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(10)
 
-                    Button {
-                        addExercise(withName: name)
-                    } label: {
-                        Text("Save")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(
-                                name.trimmingCharacters(in: .whitespaces).isEmpty
-                                ? Color.gray.opacity(0.4)
-                                : Color.blue
-                            )
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
-                    .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
-                }
-                .padding()
-                .background(Color(backgroundColor))
-                .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-
-                // Display list of template exercises to quickly select from
-                if !templates.isEmpty {
-                    VStack(spacing: 12) {
-                        ForEach(templates, id: \.self) { template in
                             Button {
-                                addExercise(withName: template.name ?? "")
+                                addExercise(withName: name)
                             } label: {
-                                Text(template.name ?? "")
-                                    .foregroundColor(.primary)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Text("Save")
+                                    .frame(maxWidth: .infinity)
                                     .padding()
-                                    .background(Color(backgroundColor))
-                                    .cornerRadius(12)
-                                    .shadow(color: Color.black.opacity(0.04), radius: 2, x: 0, y: 1)
+                                    .background(
+                                        name.trimmingCharacters(in: .whitespaces).isEmpty
+                                        ? Color.gray.opacity(0.4)
+                                        : Color.blue
+                                    )
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
                             }
-                            .buttonStyle(PlainButtonStyle())
+                            .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+                            .buttonStyle(.plain)
                         }
-                    }
-                }
+                        .padding()
+                        .background(Color(backgroundColor))
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
 
-                Spacer() // Keeps content aligned to top
+                        // Display list of template exercises to quickly select from
+                        if !templates.isEmpty {
+                            VStack(spacing: 12) {
+                                ForEach(templates, id: \.self) { template in
+                                    ZStack {
+                                        // Capsule button for exercise name
+                                        Button(action: {
+                                            addExercise(withName: template.name ?? "")
+                                        }) {
+                                            Text(template.name ?? "")
+                                                .foregroundColor(.primary)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .padding()
+                                                .background(Color(backgroundColor))
+                                                .cornerRadius(12)
+                                                .shadow(color: Color.black.opacity(0.04), radius: 2, x: 0, y: 1)
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        // Trash can inside the capsule
+                                        HStack {
+                                            Spacer()
+                                            // Delete exercise button with destructive role
+                                            Button(role: .destructive) {
+                                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                                        isDeleting.toggle()
+                                                    }
+                                                    deleteTemplate(template)
+                                                } label: {
+                                                    if isDeleting {
+                                                        Image(systemName: "minus.circle.fill")
+                                                            .foregroundColor(.red)
+                                                            .scaleEffect(1.2)
+                                                            .opacity(0.5)
+                                                    } else {
+                                                        Image(systemName: "minus.circle.fill")
+                                                            .foregroundColor(.red)
+                                                    }
+                                                }
+                                                .padding(.trailing, 8) // Padding to ensure the trash can is not too close
+                                                .buttonStyle(.plain)
+                                        }
+                                        .padding(.horizontal)
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer() // Keeps content aligned to top
+                    }
+                    .padding(.horizontal)
+                }
             }
-            .padding(.horizontal)
-            .background(Color(.systemGroupedBackground).ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 // Cancel button to dismiss the view
@@ -102,6 +141,8 @@ struct AddExerciseView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundColor(Color.blue)
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -118,7 +159,7 @@ struct AddExerciseView: View {
         newExercise.date = selectedDate
         newExercise.workout = preAssignedWorkout
 
-        // Save as a new template if it doesn't already exist 
+        // Save as a new template if it doesn't already exist
         if !templates.contains(where: { $0.name?.lowercased() == trimmedName.lowercased() }) {
             let template = ExerciseTemplate(context: viewContext)
             template.name = trimmedName
@@ -126,5 +167,18 @@ struct AddExerciseView: View {
 
         try? viewContext.save()
         dismiss()
+    }
+
+    // Deletes the selected exercise template
+    private func deleteTemplate(_ template: ExerciseTemplate) {
+        viewContext.delete(template)
+
+        // Save the changes
+        do {
+            isDeleting = false
+            try viewContext.save()
+        } catch {
+            print("Failed to delete template: \(error)")
+        }
     }
 }

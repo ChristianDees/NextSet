@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct WorkoutDetailView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.managedObjectContext) private var viewContext
@@ -16,6 +17,8 @@ struct WorkoutDetailView: View {
     @ObservedObject var workout: Workout            // The workout being edited
     @State private var workoutName: String = ""     // Local state for workout name input
     @State private var showAddExercise = false      // Controls sheet presentation to add exercise
+    @State private var isDeleting = false
+    @State private var showingDeleteConfirmation = false  // For triggering delete confirmation alert
 
     // Background color adapts to dark/light mode
     var backgroundColor: Color {
@@ -28,14 +31,16 @@ struct WorkoutDetailView: View {
         VStack(spacing: 0) {
 
             HStack {
-                // Back button to dismiss the view
+                // Trashcan button to delete workout
                 Button(action: {
-                    presentationMode.wrappedValue.dismiss()
+                    showingDeleteConfirmation = true
                 }) {
-                    Image(systemName: "chevron.left")
-                        .font(.title2)
-                        .foregroundColor(.accentColor)
+                    Image(systemName: "trash")
+                        .frame(width: 16, height: 16)  // Smaller size for trashcan
+                        .foregroundColor(.red)
                 }
+                .padding(.leading)
+                .buttonStyle(.plain)
 
                 Spacer()
 
@@ -46,30 +51,38 @@ struct WorkoutDetailView: View {
 
                 Spacer()
 
-                // Done button to close
+                // Done button to close, smaller size and more space
                 Button("Done") {
                     presentationMode.wrappedValue.dismiss()
                 }
-                .fontWeight(.semibold)
+                .font(.subheadline)  // Smaller font size for Done button
                 .foregroundColor(.accentColor)
+                .padding(.trailing)
+                .buttonStyle(.plain)
             }
             .padding()
             .background(Color(.systemGroupedBackground))
             .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 2)
 
-
             ScrollView {
                 VStack(spacing: 24) {
                     // Workout Name
                     VStack(spacing: 12) {
-                        TextField("Workout Name", text: $workoutName)
-                            .font(.title3)
-                            // Save changes immediately 
-                            .onChange(of: workoutName) { _, newName in
-                                workout.name = newName
-                                saveContext()
-                            }
+                        HStack {
+                            Spacer() // Keeps the workout name centered
 
+                            // Text field to edit workout name
+                            TextField("Workout Name", text: $workoutName)
+                                .font(.title3)
+                                .multilineTextAlignment(.center)
+                                // Save changes immediately
+                                .onChange(of: workoutName) { _, newName in
+                                    workout.name = newName
+                                    saveContext()
+                                }
+
+                            Spacer() // Keeps the workout name centered
+                        }
                     }
                     .padding()
                     .background(Color(backgroundColor))
@@ -78,7 +91,6 @@ struct WorkoutDetailView: View {
                     .padding(.horizontal)
 
                     // Exercise list
-
                     VStack(spacing: 12) {
                         if workout.exercisesArray.isEmpty {
                             // Placeholder when no exercises exist
@@ -97,23 +109,33 @@ struct WorkoutDetailView: View {
 
                                     // Delete exercise button with destructive role
                                     Button(role: .destructive) {
-                                        deleteExercise(exercise)
-                                    } label: {
-                                        Image(systemName: "trash")
-                                            .foregroundColor(.red)
+                                            withAnimation(.easeInOut(duration: 0.2)) {
+                                                isDeleting.toggle()
+                                            }
+                                            deleteExercise(exercise)
+                                        } label: {
+                                            if isDeleting {
+                                                Image(systemName: "minus.circle.fill")
+                                                    .foregroundColor(.red)
+                                                    .scaleEffect(1.2)
+                                                    .opacity(0.5)
+                                            } else {
+                                                Image(systemName: "minus.circle.fill")
+                                                    .foregroundColor(.red)
+                                            }
+                                        }
                                     }
-                                }
-                                .padding()
-                                .background(Color(backgroundColor))
-                                .cornerRadius(12)
-                                .shadow(color: Color.black.opacity(0.04), radius: 2, x: 0, y: 1)
-                                .padding(.horizontal)
+                                    .padding()
+                                    .background(Color(backgroundColor))
+                                    .cornerRadius(12)
+                                    .shadow(color: Color.black.opacity(0.04), radius: 2, x: 0, y: 1)
+                                    .padding(.horizontal)
+                                    .buttonStyle(.plain)
                             }
                         }
                     }
 
                     // Add exercise button
-
                     Button {
                         showAddExercise = true
                     } label: {
@@ -126,6 +148,7 @@ struct WorkoutDetailView: View {
                             .cornerRadius(10)
                     }
                     .padding(.horizontal)
+                    .buttonStyle(.plain)
 
                     Spacer() // Push content up
                 }
@@ -141,6 +164,16 @@ struct WorkoutDetailView: View {
             // Pass workout's date and workout to AddExerciseView
             AddExerciseView(selectedDate: workout.date ?? nil, preAssignedWorkout: workout)
         }
+        .alert(isPresented: $showingDeleteConfirmation) {
+            Alert(
+                title: Text("Delete Workout"),
+                message: Text("Are you sure you want to delete this workout?"),
+                primaryButton: .cancel(),
+                secondaryButton: .destructive(Text("Delete")) {
+                    deleteWorkout()
+                }
+            )
+        }
     }
 
     // Save the workout
@@ -152,9 +185,20 @@ struct WorkoutDetailView: View {
         }
     }
 
+    // Deletes the workout
+    private func deleteWorkout() {
+        // Deleting the workout from the context
+        viewContext.delete(workout)
+
+        // Save changes after deletion
+        saveContext()
+
+        // Dismiss the view after deletion
+        dismiss()
+    }
+
     // Deletes an exercise and manages relationships
     private func deleteExercise(_ exercise: Exercise) {
-        
         // Remove exercise from workout's relationship
         if let workout = exercise.workout {
             workout.removeFromExercises(exercise)
@@ -165,8 +209,9 @@ struct WorkoutDetailView: View {
             viewContext.delete(exercise)
         }
 
-        // Save changes 
+        // Save changes
         do {
+            isDeleting = false
             try viewContext.save()
         } catch {
             print("Failed to update context: \(error.localizedDescription)")

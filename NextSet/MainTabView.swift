@@ -4,7 +4,6 @@
 //
 //  Created by Christian Dees on 8/28/25.
 //
-
 import SwiftUI
 
 struct MainTabView: View {
@@ -28,7 +27,6 @@ struct MainTabView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-
                 Group {
                     switch selectedTab {
                     case 0:
@@ -46,29 +44,27 @@ struct MainTabView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-
                 HStack(spacing: 0) {
                     // Home Tab Button
-                    tabBarButton(title: "Home", systemImage: "calendar", tag: 0)
+                    tabBarButton(systemImage: "calendar", tag: 0, iconSize: 35)  // Smaller side icon size
 
                     Spacer()
 
-                    // Center Plus Button
+                    // Center Plus Button (Increased size)
                     Button(action: {
                         showAddMenu.toggle()
                     }) {
                         ZStack {
                             Circle()
                                 .fill(Color.blue)
-                                .frame(width: 44, height: 44)
+                                .frame(width: 56, height: 56)  // Increased circle size
 
                             Image(systemName: "plus")
-                                .font(.system(size: 22, weight: .bold))
+                                .font(.system(size: 28, weight: .bold))  // Increased plus icon size
                                 .foregroundColor(.white)
                         }
                     }
                     .confirmationDialog("Add New", isPresented: $showAddMenu, titleVisibility: .visible) {
-                        
                         if selectedTab == 0 {
                             Button("Add Exercise to Day") {
                                 NotificationCenter.default.post(name: .addExercise, object: nil)
@@ -83,11 +79,12 @@ struct MainTabView: View {
                         }
                         Button("Cancel", role: .cancel) {}
                     }
+                    .buttonStyle(.plain)
 
                     Spacer()
 
                     // Workouts Tab Button
-                    tabBarButton(title: "Workouts", systemImage: "list.bullet.rectangle", tag: 2)
+                    tabBarButton(systemImage: "list.bullet.rectangle", tag: 2, iconSize: 35)  // Smaller side icon size
                 }
                 .padding(.horizontal, 32)
                 .padding(.vertical, 10)
@@ -103,7 +100,7 @@ struct MainTabView: View {
     }
 
     @ViewBuilder
-    private func tabBarButton(title: String, systemImage: String, tag: Int) -> some View {
+    private func tabBarButton(systemImage: String, tag: Int, iconSize: CGFloat) -> some View {
         Button(action: {
             withAnimation {
                 selectedTab = tag
@@ -111,16 +108,13 @@ struct MainTabView: View {
         }) {
             VStack(spacing: 4) {
                 Image(systemName: systemImage)
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundColor(selectedTab == tag ? .blue : .gray)
-
-                Text(title)
-                    .font(.caption)
-                    .fontWeight(selectedTab == tag ? .semibold : .regular)
+                    .font(.system(size: iconSize, weight: .medium))  // Adjusted icon size
                     .foregroundColor(selectedTab == tag ? .blue : .gray)
             }
             .frame(minWidth: 60)
             .contentShape(Rectangle()) // Expands tap area
         }
+        .buttonStyle(.plain)
     }
 }
+

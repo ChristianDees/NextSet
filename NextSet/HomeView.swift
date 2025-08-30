@@ -5,8 +5,10 @@
 //  Created by Christian Dees on 8/28/25.
 //
 
+
 import SwiftUI
 import CoreData
+
 
 struct HomeView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -51,11 +53,13 @@ struct HomeView: View {
                         Spacer().frame(height: 12)
 
                         // Navigation Arrows + Date Display
-                        HStack(spacing: 20) {
+                        HStack(spacing: 0) {
                             Button { changeDate(by: -1) } label: {
                                 Image(systemName: "chevron.left")
                                     .font(.title2)
+                                    .foregroundStyle(Color(.blue))
                             }
+                            .buttonStyle(.plain)
 
                             Spacer()
 
@@ -66,24 +70,27 @@ struct HomeView: View {
                                 }
                             } label: {
                                 Text(formattedDate(selectedDate))
-                                    .font(.title3.bold())
+                                    .font(.system(size: 30, weight: .bold))  // Adjusted font size here
                                     .foregroundColor(.primary)
                                     .padding(.horizontal, 30)
                                     .padding(.vertical, 15)
                                     .background(Color(backgroundColor))
                                     .clipShape(Capsule())
                                     .shadow(color: Color.primary.opacity(0.1), radius: 3)
+                                    .lineLimit(1)  // Limit the text to a single line
+                                    .minimumScaleFactor(0.5)  // Allow the text to scale down if needed
                             }
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                            .fixedSize()
+                            .frame(maxWidth: .infinity)  // Make the date button stretch to fill space
+                            .buttonStyle(.plain)
 
                             Spacer()
 
                             Button { changeDate(by: 1) } label: {
                                 Image(systemName: "chevron.right")
                                     .font(.title2)
+                                    .foregroundStyle(Color(.blue))
                             }
+                            .buttonStyle(.plain)
                         }
                         .padding(.horizontal)
 
@@ -153,6 +160,8 @@ struct HomeView: View {
                                                 Text(exercise.name ?? "Unnamed Exercise")
                                                     .font(.headline)
                                                     .foregroundColor(.primary)
+                                                    .lineLimit(1)
+                                                    .minimumScaleFactor(0.8)
 
                                                 if let workoutName = exercise.workout?.name {
                                                     Text(workoutName)
@@ -178,14 +187,16 @@ struct HomeView: View {
                                         )
                                         .shadow(color: Color.primary.opacity(0.05), radius: 2, x: 0, y: 1)
                                         .padding(.horizontal)
+                                        
                                     }
+                                    .buttonStyle(.plain)
                                 }
                             }
                             .padding(.top, 4)
                         }
 
                         // Message to add more
-                        if exercisesToday.count <= 3 {
+                        if exercisesToday.count < 3 {
                             VStack(spacing: 12) {
                                 Text("Add an exercise or workout below")
                                     .multilineTextAlignment(.center)
@@ -237,11 +248,13 @@ struct HomeView: View {
     }
 
     // Formats a Date into a readable string (e.g., August 29, 2025)
+    // Formats a Date into a readable string with a short month (e.g., Aug 29, 2025)
     func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateStyle = .long
+        formatter.dateStyle = .medium // Shortens the month to 3 letters (e.g., "Aug" instead of "August")
         return formatter.string(from: date)
     }
+
 
     // Changes selected date by a given number of days
     func changeDate(by days: Int) {

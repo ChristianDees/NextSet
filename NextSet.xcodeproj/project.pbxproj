@@ -24,7 +24,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		AA8F93322E60DDF300C5FAA6 /* NextStep.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextStep.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA8F93322E60DDF300C5FAA6 /* NextSet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextSet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA8F93442E60DDF500C5FAA6 /* NextSetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextSetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA8F934E2E60DDF500C5FAA6 /* NextSetUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextSetUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -85,7 +85,7 @@
 		AA8F93332E60DDF300C5FAA6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AA8F93322E60DDF300C5FAA6 /* NextStep.app */,
+				AA8F93322E60DDF300C5FAA6 /* NextSet.app */,
 				AA8F93442E60DDF500C5FAA6 /* NextSetTests.xctest */,
 				AA8F934E2E60DDF500C5FAA6 /* NextSetUITests.xctest */,
 			);
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AA8F93312E60DDF300C5FAA6 /* NextStep */ = {
+		AA8F93312E60DDF300C5FAA6 /* NextSet */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AA8F93582E60DDF500C5FAA6 /* Build configuration list for PBXNativeTarget "NextStep" */;
+			buildConfigurationList = AA8F93582E60DDF500C5FAA6 /* Build configuration list for PBXNativeTarget "NextSet" */;
 			buildPhases = (
 				AA8F932E2E60DDF300C5FAA6 /* Sources */,
 				AA8F932F2E60DDF300C5FAA6 /* Frameworks */,
@@ -110,11 +110,11 @@
 			fileSystemSynchronizedGroups = (
 				AA8F93342E60DDF300C5FAA6 /* NextSet */,
 			);
-			name = NextStep;
+			name = NextSet;
 			packageProductDependencies = (
 			);
 			productName = NextStep;
-			productReference = AA8F93322E60DDF300C5FAA6 /* NextStep.app */;
+			productReference = AA8F93322E60DDF300C5FAA6 /* NextSet.app */;
 			productType = "com.apple.product-type.application";
 		};
 		AA8F93432E60DDF500C5FAA6 /* NextSetTests */ = {
@@ -200,7 +200,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AA8F93312E60DDF300C5FAA6 /* NextStep */,
+				AA8F93312E60DDF300C5FAA6 /* NextSet */,
 				AA8F93432E60DDF500C5FAA6 /* NextSetTests */,
 				AA8F934D2E60DDF500C5FAA6 /* NextSetUITests */,
 			);
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		AA8F93462E60DDF500C5FAA6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AA8F93312E60DDF300C5FAA6 /* NextStep */;
+			target = AA8F93312E60DDF300C5FAA6 /* NextSet */;
 			targetProxy = AA8F93452E60DDF500C5FAA6 /* PBXContainerItemProxy */;
 		};
 		AA8F93502E60DDF500C5FAA6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AA8F93312E60DDF300C5FAA6 /* NextStep */;
+			target = AA8F93312E60DDF300C5FAA6 /* NextSet */;
 			targetProxy = AA8F934F2E60DDF500C5FAA6 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -395,6 +395,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3DWJL298G7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -422,6 +423,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3DWJL298G7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -522,7 +524,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AA8F93582E60DDF500C5FAA6 /* Build configuration list for PBXNativeTarget "NextStep" */ = {
+		AA8F93582E60DDF500C5FAA6 /* Build configuration list for PBXNativeTarget "NextSet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA8F93592E60DDF500C5FAA6 /* Debug */,
