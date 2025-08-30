@@ -49,7 +49,6 @@ By focusing on **progressive overload**, NextSet empowers you to beat your previ
   <img src="./SSExamples/HomePageExampleLight.png" alt="Home Page Dark" width="200" />
   <img src="./SSExamples/WorkoutTabExampleLight.png" alt="Exercise Details Dark" width="200" />
   <img src="./SSExamples/CreateWorkoutExampleLight.png" alt="Exercise Details Dark" width="200" />
-  <img src="./NextSet/Assets.xcassets/AppIcon.appiconset/NextSetIconLight.png" alt="NextSet App Icon" width="150" />
 </p>
 
 <p style="display: flex; justify-content: center; gap: 30px;">
@@ -57,7 +56,6 @@ By focusing on **progressive overload**, NextSet empowers you to beat your previ
   <img src="./SSExamples/HomePageExampleDark.png" alt="Home Page Dark" width="200" />
   <img src="./SSExamples/WorkoutTabExampleDark.png" alt="Exercise Details Dark" width="200" />
   <img src="./SSExamples/CreateWorkoutExampleDark.png" alt="Exercise Details Dark" width="200" />
-  <img src="./NextSet/Assets.xcassets/AppIcon.appiconset/NextSetIconDark.png" alt="NextSet App Icon" width="150" />
 </p>
 
 ---
