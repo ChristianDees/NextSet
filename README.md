@@ -64,9 +64,11 @@ By focusing on **progressive overload**, NextSet empowers you to beat your previ
 
 ## Installation
 
-We are working to get NextSet available on the iOS App Store. 
+We are working to get NextSet available on the iOS App Store.
 For now, simply clone the project, open it in Xcode, and deploy it to your iPhone.
 Then you can start tracking your workouts and pushing your limits!
+
+**Note**: To deploy on your iPhone locally, it requires a personal developer team.
 
 ---
 
