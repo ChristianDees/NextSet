@@ -9,34 +9,32 @@ import SwiftUI
 
 
 struct WorkoutDetailView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.managedObjectContext) private var viewContext
-    @Environment(\.presentationMode) private var presentationMode
-    @Environment(\.dismiss) private var dismiss
+    
+    @Environment(\.colorScheme) private var colorScheme             // Accesses the current color mode (dark/light)
+    @Environment(\.managedObjectContext) private var viewContext    // Accesses the Core Data managed object context
+    @Environment(\.presentationMode) private var presentationMode   // Accesses presentation mode for dismissal
+    @Environment(\.dismiss) private var dismiss     // Dismissing current view
 
     @ObservedObject var workout: Workout            // The workout being edited
+    
     @State private var workoutName: String = ""     // Local state for workout name input
     @State private var showAddExercise = false      // Controls sheet presentation to add exercise
-    @State private var isDeleting = false
+    @State private var isDeleting = false           // Deletion of workout in progress
     @State private var showingDeleteConfirmation = false  // For triggering delete confirmation alert
 
-    // Background color adapts to dark/light mode
-    var backgroundColor: Color {
-        colorScheme == .dark
-        ? Color(UIColor.secondarySystemBackground)
-        : Color(UIColor.white)
-    }
+    // Background color based on light/dark mode
+    var backgroundColor: Color {colorScheme == .dark ? Color(UIColor.secondarySystemBackground) : Color(UIColor.white)}
 
+    
     var body: some View {
         VStack(spacing: 0) {
-
             HStack {
                 // Trashcan button to delete workout
                 Button(action: {
                     showingDeleteConfirmation = true
                 }) {
                     Image(systemName: "trash")
-                        .frame(width: 16, height: 16)  // Smaller size for trashcan
+                        .frame(width: 16, height: 16)
                         .foregroundColor(.red)
                 }
                 .padding(.leading)
@@ -44,18 +42,18 @@ struct WorkoutDetailView: View {
 
                 Spacer()
 
-                // Title centered
+                // Title for sheet
                 Text("Workout")
                     .font(.headline)
                     .fontWeight(.semibold)
 
                 Spacer()
 
-                // Done button to close, smaller size and more space
+                // Done button to close
                 Button("Done") {
                     presentationMode.wrappedValue.dismiss()
                 }
-                .font(.subheadline)  // Smaller font size for Done button
+                .font(.subheadline)
                 .foregroundColor(.accentColor)
                 .padding(.trailing)
                 .buttonStyle(.plain)
@@ -66,12 +64,11 @@ struct WorkoutDetailView: View {
 
             ScrollView {
                 VStack(spacing: 24) {
-                    // Workout Name
                     VStack(spacing: 12) {
                         HStack {
-                            Spacer() // Keeps the workout name centered
+                            Spacer()
 
-                            // Text field to edit workout name
+                            // // Workout Name (editable)
                             TextField("Workout Name", text: $workoutName)
                                 .font(.title3)
                                 .multilineTextAlignment(.center)
@@ -81,7 +78,7 @@ struct WorkoutDetailView: View {
                                     saveContext()
                                 }
 
-                            Spacer() // Keeps the workout name centered
+                            Spacer()
                         }
                     }
                     .padding()
@@ -107,7 +104,7 @@ struct WorkoutDetailView: View {
                                         .foregroundColor(.primary)
                                     Spacer()
 
-                                    // Delete exercise button with destructive role
+                                    // Delete exercise button
                                     Button(role: .destructive) {
                                             withAnimation(.easeInOut(duration: 0.2)) {
                                                 isDeleting.toggle()
@@ -150,13 +147,13 @@ struct WorkoutDetailView: View {
                     .padding(.horizontal)
                     .buttonStyle(.plain)
 
-                    Spacer() // Push content up
+                    Spacer()
                 }
                 .padding(.vertical)
             }
             .background(Color(.systemGroupedBackground).ignoresSafeArea())
         }
-        .navigationBarHidden(true) // Hide default nav bar since using custom one
+        .navigationBarHidden(true)
         .onAppear {
             workoutName = workout.name ?? ""
         }
@@ -187,13 +184,8 @@ struct WorkoutDetailView: View {
 
     // Deletes the workout
     private func deleteWorkout() {
-        // Deleting the workout from the context
         viewContext.delete(workout)
-
-        // Save changes after deletion
         saveContext()
-
-        // Dismiss the view after deletion
         dismiss()
     }
 

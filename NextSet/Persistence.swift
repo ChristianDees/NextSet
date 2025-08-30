@@ -7,52 +7,23 @@
 
 import CoreData
 
-import CoreData
 
 struct PersistenceController {
-    static let shared = PersistenceController()
+    
+    static let shared = PersistenceController() // Shared instance for app
 
-    let container: NSPersistentContainer
+    let container: NSPersistentContainer    // Holds core data stack
 
+    // Controller initialize, optionally using an in-memory store
     init(inMemory: Bool = false) {
-        container = NSPersistentContainer(name: "NextSetModel")
-        if inMemory {
-            container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
-        }
+        container = NSPersistentContainer(name: "NextSetModel")  // Initialize with the model name
+        // Use an in-memory store for testing or previews
+        if inMemory { container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null") }
 
+        // Load the persistent stores
         container.loadPersistentStores { _, error in
-            if let error = error {
-                fatalError("Unresolved error: \(error)")
-            }
+            if let error = error { fatalError("Unresolved error: \(error)") }
         }
     }
 }
-extension PersistenceController {
-    static var preview: PersistenceController = {
-        let controller = PersistenceController(inMemory: true)
 
-        // Example data for preview
-        let context = controller.container.viewContext
-        let exampleExercise = Exercise(context: context)
-        exampleExercise.name = "Preview Bench Press"
-        exampleExercise.date = Date()
-
-        let set1 = Seti(context: context)
-        set1.weight = 135
-        set1.reps = 10
-        set1.exercise = exampleExercise
-
-        let set2 = Seti(context: context)
-        set2.weight = 145
-        set2.reps = 8
-        set2.exercise = exampleExercise
-
-        do {
-            try context.save()
-        } catch {
-            fatalError("Unresolved error \(error)")
-        }
-
-        return controller
-    }()
-}

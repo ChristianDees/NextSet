@@ -4,27 +4,27 @@
 //
 //  Created by Christian Dees on 8/28/25.
 //
+
 import SwiftUI
+import Foundation
+
 
 struct MainTabView: View {
-    @Environment(\.colorScheme) private var colorScheme
+    
+    @Environment(\.colorScheme) private var colorScheme // Accesses the current color mode (dark/light)
 
-    @State private var selectedTab: Int = 0            // Tracks current tab
-    @State private var showAddMenu = false             // Controls visibility of the add menu
+    @State private var selectedTab: Int = 0            // Track current tab
+    @State private var showAddMenu = false             // Control visibility of the add menu
     @State private var selectedDate = Date()           // Shared date across views
 
-    // Background adapts to light/dark mode
-    var backgroundColor: Color {
-        colorScheme == .dark
-        ? Color(UIColor.secondarySystemBackground)
-        : Color(UIColor.white)
-    }
+    // Background color based on light/dark mode
+    var backgroundColor: Color {colorScheme == .dark ? Color(UIColor.secondarySystemBackground) : Color(UIColor.white)}
+
 
     var body: some View {
         ZStack {
-            // Full screen background
-            Color(.systemGroupedBackground)
-                .ignoresSafeArea()
+            // Background color
+            Color(.systemGroupedBackground).ignoresSafeArea()
 
             VStack(spacing: 0) {
                 Group {
@@ -46,24 +46,25 @@ struct MainTabView: View {
 
                 HStack(spacing: 0) {
                     // Home Tab Button
-                    tabBarButton(systemImage: "calendar", tag: 0, iconSize: 35)  // Smaller side icon size
+                    tabBarButton(systemImage: "calendar", tag: 0, iconSize: 35)
 
                     Spacer()
 
-                    // Center Plus Button (Increased size)
+                    // Center Plus Button
                     Button(action: {
                         showAddMenu.toggle()
                     }) {
                         ZStack {
                             Circle()
                                 .fill(Color.blue)
-                                .frame(width: 56, height: 56)  // Increased circle size
+                                .frame(width: 56, height: 56)
 
                             Image(systemName: "plus")
-                                .font(.system(size: 28, weight: .bold))  // Increased plus icon size
+                                .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.white)
                         }
                     }
+                    // Add new popup when plus is pressed
                     .confirmationDialog("Add New", isPresented: $showAddMenu, titleVisibility: .visible) {
                         if selectedTab == 0 {
                             Button("Add Exercise to Day") {
@@ -84,7 +85,7 @@ struct MainTabView: View {
                     Spacer()
 
                     // Workouts Tab Button
-                    tabBarButton(systemImage: "list.bullet.rectangle", tag: 2, iconSize: 35)  // Smaller side icon size
+                    tabBarButton(systemImage: "list.bullet.rectangle", tag: 2, iconSize: 35)
                 }
                 .padding(.horizontal, 32)
                 .padding(.vertical, 10)
@@ -99,6 +100,7 @@ struct MainTabView: View {
         }
     }
 
+    // Change size depending on font size
     @ViewBuilder
     private func tabBarButton(systemImage: String, tag: Int, iconSize: CGFloat) -> some View {
         Button(action: {
@@ -118,3 +120,9 @@ struct MainTabView: View {
     }
 }
 
+// Custom notification names
+extension Notification.Name {
+    static let addExercise = Notification.Name("addExercise")       // Noti for adding an exercise
+    static let addWorkout = Notification.Name("addWorkout")         // Noti for adding a workout
+    static let createWorkout = Notification.Name("createWorkout")   // Noti for creating a workout
+}

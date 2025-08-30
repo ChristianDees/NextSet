@@ -8,58 +8,47 @@
 import SwiftUI
 import CoreData
 
+
 struct AddExerciseView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.managedObjectContext) private var viewContext
-    @Environment(\.dismiss) var dismiss
+    
+    @Environment(\.colorScheme) private var colorScheme             // Accesses the current color mode (dark/light)
+    @Environment(\.managedObjectContext) private var viewContext    // Accesses the Core Data managed object context
+    @Environment(\.dismiss) var dismiss                             // Dismissing current view
 
     // Optional prefilled data
-    var selectedDate: Date? = nil
-    var preAssignedWorkout: Workout? = nil
-    @State private var isDeleting = false
-    @State private var name = ""
+    var selectedDate: Date? = nil           // Exercise date
+    var preAssignedWorkout: Workout? = nil  // Workout assigned to exercise
+    
+    @State private var isDeleting = false   // Exercise delete in progress
+    @State private var name = ""            // Name of exercise
 
-    // Fetch saved exercise templates sorted by name
+    // Get saved exercise sorted by name
     @FetchRequest(
         entity: ExerciseTemplate.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \ExerciseTemplate.name, ascending: true)]
     ) private var templates: FetchedResults<ExerciseTemplate>
 
-    // Dynamic background based on current color scheme
-    var backgroundColor: Color {
-        if colorScheme == .dark {
-            return Color(UIColor.secondarySystemBackground)
-        } else {
-            return Color(UIColor.white)
-        }
-    }
-    
-    // Dynamic background based on current color scheme
-    var fullBackgroundColor: Color {
-        if colorScheme == .dark {
-            return Color(UIColor.black)
-        } else {
-            return Color(UIColor.secondarySystemBackground)
-        }
-    }
-    
+    // Dynamic background color for boxes
+    var backgroundColor: Color {Color(colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.white)}
 
+    // Dynamic background color
+    var fullBackgroundColor: Color {Color(colorScheme == .dark ? UIColor.black : UIColor.secondarySystemBackground)}
+
+    
     var body: some View {
         NavigationView {
             ZStack {
-                // Apply the background color to the entire screen
-                Color(fullBackgroundColor).ignoresSafeArea()
+                Color(fullBackgroundColor).ignoresSafeArea() // Background color for whole page
 
-                ScrollView {  // Wrap the entire content inside a ScrollView
+                ScrollView {
                     VStack(spacing: 24) {
-                        // Manual name input + Save button
                         VStack(spacing: 12) {
-                            TextField("Exercise Name", text: $name)
+                            TextField("Exercise Name", text: $name) // Title of exercise name
                                 .padding()
                                 .background(Color(.systemGray6))
                                 .cornerRadius(10)
 
-                            Button {
+                            Button {                                // Save exercise button
                                 addExercise(withName: name)
                             } label: {
                                 Text("Save")
@@ -81,12 +70,12 @@ struct AddExerciseView: View {
                         .cornerRadius(16)
                         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
 
-                        // Display list of template exercises to quickly select from
+                        // Display list of saved exercises to chose from
                         if !templates.isEmpty {
                             VStack(spacing: 12) {
                                 ForEach(templates, id: \.self) { template in
                                     ZStack {
-                                        // Capsule button for exercise name
+                                        // Add exercise button
                                         Button(action: {
                                             addExercise(withName: template.name ?? "")
                                         }) {
@@ -100,10 +89,9 @@ struct AddExerciseView: View {
                                         }
                                         .buttonStyle(.plain)
 
-                                        // Trash can inside the capsule
                                         HStack {
                                             Spacer()
-                                            // Delete exercise button with destructive role
+                                            // Delete exercise button
                                             Button(role: .destructive) {
                                                     withAnimation(.easeInOut(duration: 0.2)) {
                                                         isDeleting.toggle()
@@ -120,7 +108,7 @@ struct AddExerciseView: View {
                                                             .foregroundColor(.red)
                                                     }
                                                 }
-                                                .padding(.trailing, 8) // Padding to ensure the trash can is not too close
+                                                .padding(.trailing, 8)
                                                 .buttonStyle(.plain)
                                         }
                                         .padding(.horizontal)
@@ -129,7 +117,7 @@ struct AddExerciseView: View {
                             }
                         }
 
-                        Spacer() // Keeps content aligned to top
+                        Spacer()
                     }
                     .padding(.horizontal)
                 }
@@ -148,8 +136,7 @@ struct AddExerciseView: View {
         }
     }
 
-    // Adds a new exercise with the given name.
-    // Also adds a new template if it's a new name.
+    // Adds a new exercise with the given name, or creates a new one if needed
     private func addExercise(withName name: String) {
         let trimmedName = name.trimmingCharacters(in: .whitespaces)
         guard !trimmedName.isEmpty else { return }
@@ -159,7 +146,7 @@ struct AddExerciseView: View {
         newExercise.date = selectedDate
         newExercise.workout = preAssignedWorkout
 
-        // Save as a new template if it doesn't already exist
+        // Save as a new template if it doesn't exist
         if !templates.contains(where: { $0.name?.lowercased() == trimmedName.lowercased() }) {
             let template = ExerciseTemplate(context: viewContext)
             template.name = trimmedName

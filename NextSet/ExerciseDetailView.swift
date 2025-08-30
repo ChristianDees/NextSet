@@ -8,6 +8,7 @@
 import SwiftUI
 import CoreData
 
+
 // Custom round corners
 struct RoundedCorners: Shape {
     var radius: CGFloat = 16.0
@@ -30,46 +31,37 @@ extension View {
     }
 }
 
-struct ExerciseDetailView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @ObservedObject var exercise: Exercise
-    @Environment(\.managedObjectContext) private var viewContext
-    @Environment(\.dismiss) var dismiss
-    @State private var isDeleting = false
 
-    @State private var weight = ""
-    @State private var reps = ""
+struct ExerciseDetailView: View {
+    
+    @ObservedObject var exercise: Exercise  // Instance of the Exercise model for data changes
+
+    @Environment(\.colorScheme) private var colorScheme             // Accesses the current color mode (dark/light)
+    @Environment(\.managedObjectContext) private var viewContext    // Accesses the Core Data managed object context
+    @Environment(\.dismiss) var dismiss                             // Dismissing current view
+    
+    @State private var isDeleting = false   // Exercise delete in progress
+    @State private var weight = ""          // Weight for the exercise set
+    @State private var reps = ""            // Reps for the exercise set
 
     // Focus state for text fields
     @FocusState private var isWeightFieldFocused: Bool
     @FocusState private var isRepsFieldFocused: Bool
 
-    // Background color based on appearance
-    var backgroundColor: Color {
-        if colorScheme == .dark {
-            return Color(UIColor.secondarySystemBackground)
-        } else {
-            return Color(UIColor.white)
-        }
-    }
+    // Background color based on light/dark mode
+    var backgroundColor: Color {Color(colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.white)}
     
-    // Font color based on appearance
-    var fontColor: Color {
-        if colorScheme == .dark {
-            return Color(UIColor.white)
-        } else {
-            return Color(UIColor.black)
-        }
-    }
+    // Font color based on light/dark mode
+    var fontColor: Color {Color(colorScheme == .dark ? UIColor.white : UIColor.black)}
 
+    
     var body: some View {
         VStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    // Exercise title with trash can on the left
                     HStack {
                         VStack(spacing: 0) {
-                            
+                            // Delete exercise button
                             Button(role: .destructive) {
                                 deleteExerciseImmediately()
                             } label: {
@@ -90,7 +82,7 @@ struct ExerciseDetailView: View {
                     }
                     .padding(.horizontal)
 
-                    // Add sets
+                    // Add a set with weight and reps
                     VStack(spacing: 12) {
                         HStack(spacing: 12) {
                             TextField("Weight (lbs)", text: $weight)
@@ -98,16 +90,17 @@ struct ExerciseDetailView: View {
                                 .padding()
                                 .background(Color(.systemGray6))
                                 .cornerRadius(10)
-                                .focused($isWeightFieldFocused)  // Bind the focus state
+                                .focused($isWeightFieldFocused)
 
                             TextField("Reps", text: $reps)
                                 .keyboardType(.numberPad)
                                 .padding()
                                 .background(Color(.systemGray6))
                                 .cornerRadius(10)
-                                .focused($isRepsFieldFocused)  // Bind the focus state
+                                .focused($isRepsFieldFocused)
                         }
-
+                        
+                        // Save the set made
                         Button {
                             addSet()
                         } label: {
@@ -135,7 +128,7 @@ struct ExerciseDetailView: View {
                             .padding(.vertical, 20)
                     } else {
                         VStack(spacing: 12) {
-                            // Header row for sets
+                            // Header for set
                             HStack {
                                 Text("Weight")
                                     .font(.headline)
@@ -155,7 +148,7 @@ struct ExerciseDetailView: View {
                             .cornerRadius(16, corners: [.topLeft, .topRight])
                             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
 
-                            // List of sets
+                            // List of sets wieght and reps
                             ForEach(exercise.setsArray, id: \.self) { set in
                                 HStack(spacing: 16) {
                                     Text("\(set.weight, specifier: "%.1f")")
@@ -171,7 +164,6 @@ struct ExerciseDetailView: View {
                                     Spacer()
                                     
                                     // Delete Set Button
-                                    
                                     Button(role: .destructive) {
                                         withAnimation(.easeInOut(duration: 0.2)) {
                                             isDeleting.toggle()

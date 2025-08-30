@@ -8,14 +8,16 @@
 import SwiftUI
 import CoreData
 
+
 struct AddWorkoutView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.managedObjectContext) private var viewContext
-    @Environment(\.dismiss) var dismiss
+    
+    @Environment(\.colorScheme) private var colorScheme             // Accesses the current color mode (dark/light)
+    @Environment(\.managedObjectContext) private var viewContext    // Accesses the Core Data managed object context
+    @Environment(\.dismiss) var dismiss                             // Dismissing current view
+    
+    var selectedDate: Date? = nil   // Optional date for workout
 
-    var selectedDate: Date? = nil
-
-    // Fetch workout templates (workouts without dates)
+    // Get saved workouts w/o dates (templates)
     @FetchRequest(
         entity: Workout.entity(),
         sortDescriptors: [NSSortDescriptor(key: "name", ascending: true)],
@@ -23,25 +25,20 @@ struct AddWorkoutView: View {
     ) private var templates: FetchedResults<Workout>
 
     // Background color based on light/dark mode
-    var backgroundColor: Color {
-        if colorScheme == .dark {
-            return Color(UIColor.secondarySystemBackground)
-        } else {
-            return Color(UIColor.white)
-        }
-    }
+    var backgroundColor: Color {Color(colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.white)}
+
 
     var body: some View {
         NavigationView {
             VStack(spacing: 24) {
-                // Screen title
+                // Sheet title
                 Text("Select Workout")
                     .font(.largeTitle.bold())
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.top, 8)
                     .padding(.bottom, 4)
 
-                // Show placeholder if there are no workout templates
+                // Placeholder if there are no workout templates
                 if templates.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "doc.plaintext")
@@ -57,7 +54,7 @@ struct AddWorkoutView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, 60)
                 } else {
-                    // Show list of workout templates to choose from
+                    // Show list of workouts to choose from
                     ScrollView {
                         LazyVStack(spacing: 12) {
                             ForEach(templates, id: \.self) { template in
@@ -92,7 +89,7 @@ struct AddWorkoutView: View {
             .background(Color(.systemGroupedBackground).ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                // Cancel button in nav bar
+                // Cancel button bar
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         dismiss()

@@ -7,8 +7,10 @@
 
 import SwiftUI
 
+
 @main
 struct NextSetApp: App {
+    
     let persistenceController = PersistenceController.shared
 
     var body: some Scene {
@@ -16,7 +18,5 @@ struct NextSetApp: App {
             MainTabView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
-
     }
 }
-

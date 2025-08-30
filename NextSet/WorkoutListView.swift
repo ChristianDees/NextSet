@@ -10,47 +10,42 @@ import CoreData
 
 
 struct WorkoutListView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.managedObjectContext) private var viewContext
+    
+    @Environment(\.colorScheme) private var colorScheme             // Accesses the current color mode (dark/light)
+    @Environment(\.managedObjectContext) private var viewContext    // Accesses the Core Data managed object context
 
-    // Fetch workouts without a date, sorted by name ascending
+    // Get workouts without a date
     @FetchRequest(
         entity: Workout.entity(),
         sortDescriptors: [NSSortDescriptor(key: "name", ascending: true)],
         predicate: NSPredicate(format: "date == nil")
     ) private var workouts: FetchedResults<Workout>
 
-    // Selected workout for editing
-    @State private var selectedWorkout: Workout? = nil
-    // Temporary workout for adding a new workout
-    @State private var newWorkout: Workout? = nil
-    @State private var showAddWorkout = false
+    @State private var selectedWorkout: Workout? = nil  // Selected workout for editing
+    @State private var newWorkout: Workout? = nil       // Temporary workout for adding a new workout
+    @State private var showAddWorkout = false           // If add workout should be displayed
 
-    // Background color for appearance
-    var backgroundColor: Color {
-        if colorScheme == .dark {
-            return Color(UIColor.secondarySystemBackground) // Dark mode background color
-        } else {
-            return Color(UIColor.white) // Light mode background color
-        }
-    }
-    // Color for divider for appearance
-    var dividerColor: Color {
-        colorScheme == .dark ? .white : .black
-    }
+    // Background color based on light/dark mode
+    var backgroundColor: Color {colorScheme == .dark ? Color(UIColor.secondarySystemBackground) : Color(UIColor.white)}
+    
+    // Divider color based on light/dark mode
+    var dividerColor: Color {colorScheme == .dark ? .white : .black}
 
+    
     var body: some View {
         NavigationView {
             ZStack {
-                // Background color fills entire screen
+                // Background color for entire screen
                 Color(.systemGroupedBackground).ignoresSafeArea()
-
+                
                 VStack(spacing: 0) {
                     VStack(spacing: 10) {
                         Spacer().frame(height: 12)
-
+                        
                         HStack {
                             Spacer()
+                            
+                            // Title for page
                             Text("Workouts")
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
@@ -64,11 +59,12 @@ struct WorkoutListView: View {
                     }
                     .padding(.horizontal)
                     Spacer(minLength: 40)
+                    
                     // Workout list
                     if workouts.isEmpty {
-                        // No workouts message
                         Spacer()
                         
+                        // No workouts message
                         Text("No workouts made yet!\nCreate one below")
                             .foregroundColor(.secondary)
                             .italic()
@@ -76,7 +72,6 @@ struct WorkoutListView: View {
                             .frame(maxWidth: .infinity)
                         Spacer()
                     } else {
-                        // Use a ScrollView with LazyVStack to match exercise layout
                         ScrollView {
                             LazyVStack(spacing: 12) {
                                 ForEach(workouts) { workout in
@@ -107,7 +102,7 @@ struct WorkoutListView: View {
                                                 .animation(.easeInOut, value: selectedWorkout?.objectID == workout.objectID)
                                                 .foregroundColor(.gray.opacity(0.6))
                                         }
-                                        .padding()  // Adjust padding for a tighter feel
+                                        .padding()
                                         .background(
                                             RoundedRectangle(cornerRadius: 12)
                                                 .fill(Color(backgroundColor))
@@ -138,12 +133,12 @@ struct WorkoutListView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarHidden(true) // Custom header, hide default nav bar
+            .navigationBarHidden(true)
             .onReceive(NotificationCenter.default.publisher(for: .createWorkout)) { _ in
                 createNewWorkout()
             }
         }
-        // Workout Detail Sheet for Editing Selected Workout
+        // Workout Detail Sheet for edditing selected workout
         .sheet(isPresented: Binding(
             get: { selectedWorkout != nil },
             set: { if !$0 { selectedWorkout = nil } }
@@ -157,7 +152,7 @@ struct WorkoutListView: View {
                 .environment(\.managedObjectContext, viewContext)
             }
         }
-        // Sheet for Adding a New Workout
+        // display Sheet for adding new workout
         .sheet(isPresented: $showAddWorkout, onDismiss: {
             // Clean up temporary newWorkout after dismiss
             newWorkout = nil
@@ -171,14 +166,14 @@ struct WorkoutListView: View {
         }
     }
 
-    // Creates a new workout and presents the add workout sheet
+    // Creates a workout
     private func createNewWorkout() {
         newWorkout = Workout(context: viewContext)
         newWorkout?.date = nil
         showAddWorkout = true
     }
 
-    // Deletes workouts
+    // Deletes a workout
     private func deleteWorkout(at offsets: IndexSet) {
         offsets.map { workouts[$0] }.forEach(viewContext.delete)
         do {
@@ -188,7 +183,7 @@ struct WorkoutListView: View {
         }
     }
 
-    // Formats a Date to a string
+    // Formats date
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium

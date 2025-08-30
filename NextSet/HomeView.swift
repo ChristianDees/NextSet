@@ -5,15 +5,16 @@
 //  Created by Christian Dees on 8/28/25.
 //
 
-
 import SwiftUI
 import CoreData
 
 
 struct HomeView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.managedObjectContext) private var viewContext
-    @Binding var selectedDate: Date
+    
+    @Environment(\.colorScheme) private var colorScheme             // Accesses the current color mode (dark/light)
+    @Environment(\.managedObjectContext) private var viewContext    // Accesses the Core Data managed object context
+    
+    @Binding var selectedDate: Date // Date for today (or can be selected)
 
     // UI State
     @State private var showCalendar = false
@@ -22,38 +23,35 @@ struct HomeView: View {
     @State private var selectedExercise: Exercise? = nil
     @State private var tappedExerciseID: NSManagedObjectID? = nil
 
-    // Fetch all exercises filtered by date
+    // Get all exercises filtered by date
     @FetchRequest(
         entity: Exercise.entity(),
         sortDescriptors: [NSSortDescriptor(key: "name", ascending: true)]
     )
-    private var allExercises: FetchedResults<Exercise>
-
-    // Background colors for appearance
-    var backgroundColor: Color {
-        colorScheme == .dark
-        ? Color(UIColor.secondarySystemBackground)
-        : Color(UIColor.white)
-    }
     
-    // Color for divider for appearance
-    var dividerColor: Color {
-        colorScheme == .dark ? .white : .black
-    }
+    private var allExercises: FetchedResults<Exercise>  // Holds all the exercises
 
+    // Background color based on light/dark mode
+    var backgroundColor: Color {colorScheme == .dark ? Color(UIColor.secondarySystemBackground) : Color(UIColor.white)}
+
+    // Divider color based on light/dark mode
+    var dividerColor: Color {colorScheme == .dark ? .white : .black}
+
+    
     var body: some View {
         NavigationView {
             ZStack {
-                // Background
+                // Background color
                 Color(.systemGroupedBackground).ignoresSafeArea()
-
                 VStack(spacing: 0) {
                     // Date header
                     VStack(spacing: 10) {
                         Spacer().frame(height: 12)
-
+                        
                         // Navigation Arrows + Date Display
                         HStack(spacing: 0) {
+                            
+                            // Previous day button
                             Button { changeDate(by: -1) } label: {
                                 Image(systemName: "chevron.left")
                                     .font(.title2)
@@ -70,21 +68,22 @@ struct HomeView: View {
                                 }
                             } label: {
                                 Text(formattedDate(selectedDate))
-                                    .font(.system(size: 30, weight: .bold))  // Adjusted font size here
+                                    .font(.system(size: 30, weight: .bold))
                                     .foregroundColor(.primary)
                                     .padding(.horizontal, 30)
                                     .padding(.vertical, 15)
                                     .background(Color(backgroundColor))
                                     .clipShape(Capsule())
                                     .shadow(color: Color.primary.opacity(0.1), radius: 3)
-                                    .lineLimit(1)  // Limit the text to a single line
-                                    .minimumScaleFactor(0.5)  // Allow the text to scale down if needed
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
                             }
-                            .frame(maxWidth: .infinity)  // Make the date button stretch to fill space
+                            .frame(maxWidth: .infinity)
                             .buttonStyle(.plain)
 
                             Spacer()
-
+                            
+                            // Next day button
                             Button { changeDate(by: 1) } label: {
                                 Image(systemName: "chevron.right")
                                     .font(.title2)
@@ -94,7 +93,7 @@ struct HomeView: View {
                         }
                         .padding(.horizontal)
 
-                        // --- Calendar Picker ---
+                        // Calendar
                         if showCalendar {
                             DatePicker(
                                 "",
@@ -122,13 +121,13 @@ struct HomeView: View {
                     }
                     .padding(.horizontal)
 
-                    Spacer(minLength: 40) // Push content downward slightly
+                    Spacer(minLength: 40)
 
                     // Exercises
                     let exercisesToday = filteredExercises(for: selectedDate)
 
                     if exercisesToday.isEmpty {
-                        // Empty list
+                        // Display suggestion if no exercises
                         VStack(spacing: 12) {
                             Spacer()
 
@@ -148,9 +147,11 @@ struct HomeView: View {
                         }
                         .padding()
                     } else {
+                        // List of exercises
                         ScrollView {
                             LazyVStack(spacing: 12) {
                                 ForEach(exercisesToday) { exercise in
+                                    // Select exercise
                                     Button {
                                         tappedExerciseID = exercise.objectID
                                         selectedExercise = exercise
@@ -215,15 +216,13 @@ struct HomeView: View {
             }
             .navigationBarHidden(true)
 
-            // Listen for add exercise/workout actions
-            .onReceive(NotificationCenter.default.publisher(for: .addExercise)) { _ in
-                showAddExercise = true
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .addWorkout)) { _ in
-                showAddWorkout = true
-            }
+            // Listen for add exercise action
+            .onReceive(NotificationCenter.default.publisher(for: .addExercise)) { _ in showAddExercise = true}
+            
+            // Listen for add workout action
+            .onReceive(NotificationCenter.default.publisher(for: .addWorkout)) { _ in showAddWorkout = true}
 
-            // Show exercise details
+            // Display exercise details
             .sheet(isPresented: Binding(
                 get: { selectedExercise != nil },
                 set: { if !$0 { selectedExercise = nil } }
@@ -235,35 +234,29 @@ struct HomeView: View {
                 }
             }
 
-            // Show add exercise modal
-            .sheet(isPresented: $showAddExercise) {
-                AddExerciseView(selectedDate: selectedDate)
-            }
+            // Display add exercise modal
+            .sheet(isPresented: $showAddExercise) {AddExerciseView(selectedDate: selectedDate)}
 
             // Show add workout modal
-            .sheet(isPresented: $showAddWorkout) {
-                AddWorkoutView(selectedDate: selectedDate)
-            }
+            .sheet(isPresented: $showAddWorkout) {AddWorkoutView(selectedDate: selectedDate)}
         }
     }
 
-    // Formats a Date into a readable string (e.g., August 29, 2025)
-    // Formats a Date into a readable string with a short month (e.g., Aug 29, 2025)
+    // Formats date into short format
     func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium // Shortens the month to 3 letters (e.g., "Aug" instead of "August")
+        formatter.dateStyle = .medium
         return formatter.string(from: date)
     }
 
-
-    // Changes selected date by a given number of days
+    // Change date by a day
     func changeDate(by days: Int) {
         if let newDate = Calendar.current.date(byAdding: .day, value: days, to: selectedDate) {
             selectedDate = newDate
         }
     }
 
-    // Filters all exercises to only include those tied to the selected day
+    // Get exercises for specific day
     func filteredExercises(for date: Date) -> [Exercise] {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
